@@ -37,10 +37,27 @@ class SynthEngine: ObservableObject {
         MorphingOscillator(index:2.75)
     ]
     
+    let reverb: CostelloReverb
+    let dryWet: DryWetMixer
+    @Published var reverbMix: AUValue = 0.3 {
+        didSet { dryWet.balance = reverbMix }
+    }
+    
+    
     init() {
-        filter = MoogLadder(Mixer(osc[0],osc[1],osc[2]), cutoffFrequency: 20_000)
-        env = AmplitudeEnvelope(filter, attackDuration: 0.0, decayDuration: 1.0, sustainLevel: 0.0, releaseDuration: 0.25)
-        engine.output = env
+        let filter = MoogLadder(Mixer(osc[0],osc[1],osc[2]), cutoffFrequency: 20_000)
+        let env = AmplitudeEnvelope(filter, attackDuration: 0.0, decayDuration: 1.0, sustainLevel: 0.0, releaseDuration: 0.25)
+        let reverb = CostelloReverb(env, feedback: 0.6, cutoffFrequency: 4_000)
+        let dryWet = DryWetMixer(env, reverb, balance: 0.3)
+        
+        self.filter = filter
+        self.env =  env
+        self.reverb = reverb
+        self.dryWet = dryWet
+        
+        engine.output = dryWet
+        env.start()
+        reverb.start()
         try? engine.start()
     }
     

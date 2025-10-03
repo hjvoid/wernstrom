@@ -22,7 +22,7 @@ struct SynthView: View {
                 HStack {
                     VStack {
                         Text("Filter\n\(Int(conductor.cutoff))").multilineTextAlignment(.center).padding(.top, 10)
-                        CustomKnob(value: $conductor.cutoff, range: 12.0 ... 20_000.0).frame(maxWidth:150).padding(.bottom, 10)
+                        CustomKnob(value: $conductor.cutoff, range: 12.0 ... 12_000.0).frame(maxWidth:150).padding(.bottom, 10)
                     }
                     VStack {
                         Text("Attack\n\(String(format: "%.2f", conductor.env.attackDuration))").multilineTextAlignment(.center).padding(.top, 10)
@@ -39,6 +39,10 @@ struct SynthView: View {
                     VStack {
                         Text("Release\n\(String(format: "%.2f", conductor.env.releaseDuration))").multilineTextAlignment(.center).padding(.top, 10)
                         CustomKnob(value: $conductor.env.releaseDuration, range: 0.0 ... 10.0).frame(maxWidth:150).padding(.bottom, 10)
+                    }
+                    VStack {
+                        Text("Reverb\n\(String(format: "%.2f", conductor.reverbMix * 100))").multilineTextAlignment(.center).padding(.top, 10)
+                        CustomKnob(value: $conductor.reverbMix, range: 0.0 ... 1.0).frame(maxWidth:150).padding(.bottom, 10)
                     }
                 }.padding(10)
                 HStack {
