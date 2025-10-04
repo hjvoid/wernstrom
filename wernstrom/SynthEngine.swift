@@ -22,8 +22,10 @@ struct MorphingOscillatorData {
 
 class SynthEngine: ObservableObject {
     
+    
+    
     let engine = AudioEngine()
-    @Published var octave = 1
+    @Published var octave = 0
     let filter : MoogLadder
     @Published var env : AmplitudeEnvelope
     var notes = Array(repeating: 0, count: 11)
@@ -74,13 +76,15 @@ class SynthEngine: ObservableObject {
     }
     
     func noteOn(pitch: Pitch, point: CGPoint) {
+        let transposed = max(0, min(127, Int(pitch.midiNoteNumber) + octave * 12))
+        
         env.closeGate()
-        data.frequency = AUValue(pitch.midiNoteNumber).midiNoteToFrequency()
-        data.octaveFrequency = AUValue(pitch.midiNoteNumber-12).midiNoteToFrequency()
+        data.frequency = AUValue(transposed).midiNoteToFrequency()
+        data.octaveFrequency = AUValue(max(0, transposed - 12)).midiNoteToFrequency()
         for num in 0 ... 10 {
             if notes[num] == 0 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { self.env.openGate() }
-                notes[num] = pitch.intValue
+                notes[num] = transposed
                 break
             }
         }
