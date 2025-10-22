@@ -49,7 +49,9 @@ struct SynthView: View {
                     Button(action: { conductor.octave = max(-2, conductor.octave - 1) }) {
                         Image(systemName: "arrowtriangle.backward.fill").foregroundColor(.white)
                     }
-                    Text("Octave: \(conductor.octave)").frame(maxWidth:150)
+//                    Text("Octave: \(conductor.octave)").frame(maxWidth:150)
+                    OLEDDisplay(title: "Octave: ", value: "\(conductor.octave)", icon: Image(systemName: "waveform.path.ecg"), style: .ice)
+                        .frame(maxWidth:250, maxHeight: 50)
                     Button(action: { conductor.octave = min(3, conductor.octave + 1) }) {
                         Image(systemName: "arrowtriangle.forward.fill").foregroundColor(.white)
                     }
@@ -65,7 +67,7 @@ struct SynthView: View {
                         conductor.noteOff(pitch: pitch)
                     }
                 )
-                .frame(maxHeight: 300)
+                .frame(maxHeight: 150)
                 .padding()
 
             }
