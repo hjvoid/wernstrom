@@ -194,7 +194,7 @@ var body: some View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-        .opacity(1.0 - style.flickerAmount + (style.flickerAmount * CGFloat(Date.timeIntervalSinceReferenceDate).truncatingRemainder(dividingBy: .pi*2)))
+        .opacity(1.0 - style.flickerAmount + (style.flickerAmount * Foundation.sin(Date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: .pi * 2.0))))
         }
     }
 }
@@ -215,29 +215,35 @@ private struct GlowText: View {
 }
 
 
+
+
 private struct Scanlines: View {
-var opacity: Double
-@State private var phase: CGFloat = 0
+    var opacity: Double
+    var speed: CGFloat = 24 // pixels per second
 
 
-var body: some View {
-    TimelineView(.animation(minimumInterval: 1/30)) { _ in
-    Canvas { context, size in
-        let spacing: CGFloat = 3.0
-        var y: CGFloat = phase.truncatingRemainder(dividingBy: spacing)
-        while y < size.height {
-        let rect = CGRect(x: 0, y: y, width: size.width, height: 1)
-            context.fill(Path(rect), with: .color(.white.opacity(opacity)))
-            y += spacing
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1/60)) { context in
+            Canvas { canvas, size in
+                let spacing: CGFloat = 3.0
+                // Drive motion from time, not state animation
+                let t = context.date.timeIntervalSinceReferenceDate
+                let phase = (CGFloat(t) * speed).truncatingRemainder(dividingBy: spacing)
+
+
+                var y: CGFloat = phase
+                while y < size.height {
+                    let rect = CGRect(x: 0, y: y, width: size.width, height: 1)
+                    canvas.fill(Path(rect), with: .color(.white.opacity(opacity)))
+                    y += spacing
+                }
+            }
+            .mask(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .inset(by: 6)
+            )
+            .blendMode(.overlay)
         }
-    }
-        .mask(
-    RoundedRectangle(cornerRadius: 16, style: .continuous)
-        .inset(by: 6)
-    )
-        .onAppear { withAnimation(.linear(duration: 1.2).repeatForever(autoreverses: false)) { phase = 3 } }
-        .blendMode(.overlay)
-    }
         .allowsHitTesting(false)
     }
 }
